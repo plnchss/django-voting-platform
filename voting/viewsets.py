@@ -7,34 +7,38 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Voting, Nomination, Participant, Vote
 from .serializers import VotingSerializer, NominationSerializer, ParticipantSerializer, VoteSerializer
 
+# ModelViewSet автоматически обрабатывает базовый CRUD (создание, чтение, обновление, удаление)
 class VotingViewSet(viewsets.ModelViewSet):
     queryset = Voting.objects.all()
     serializer_class = VotingSerializer
-    # Настройка фильтрации для пункта №4 и №5 ТЗ
+    
+    # Настройка фильтрации (DjangoFilterBackend — точные поля, SearchFilter — текстовый поиск)
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['title', 'start_date'] # Фильтр по полям
-    search_fields = ['title', 'description']    # Поиск по названию/описанию
+    filterset_fields = ['title', 'start_date'] # Точное совпадение (Задание 12)
+    search_fields = ['title', 'description']    # Поиск по подстроке (Задание 12)
 
-    # 1. Action: Список активных (detail=False)
+    # @action создает дополнительные маршруты в API. detail=False означает путь /active/
     @action(methods=['GET'], detail=False)
     def active(self, request):
+        """Возвращает только те голосования, дата окончания которых еще не наступила"""
         active_votings = Voting.objects.filter(end_date__gte=now())
         serializer = self.get_serializer(active_votings, many=True)
         return Response(serializer.data)
 
-    # 2. Action: Закрыть вручную (detail=True) - ТРЕБОВАНИЕ №6
+    # detail=True означает работу с конкретным объектом по ID: /<id>/close/
     @action(methods=['POST'], detail=True)
     def close(self, request, pk=None):
-        voting = self.get_object()
+        """Метод для принудительного закрытия голосования текущим моментом"""
+        voting = self.get_object() # Автоматически находит объект по ID
         voting.end_date = now()
         voting.save()
         return Response({'status': 'Голосование закрыто'})
 
-    # 3. МЕГА-ПОИСК (Q-объекты: И, ИЛИ, НЕ) - ТРЕБОВАНИЕ НА "ХОРОШО"
+    # Использование Q-объектов для сложных запросов (Задание 6 - ТРЕБОВАНИЕ НА "ХОРОШО")
     @action(methods=['GET'], detail=False)
     def mega_search(self, request):
         query = request.query_params.get('q', '')
-        # (Заголовок содержит Q ИЛИ описание содержит Q) И заголовок НЕ содержит 'архив'
+        # Логика: (A ИЛИ B) И НЕ C. icontains — поиск без учета регистра
         results = Voting.objects.filter(
             (Q(title__icontains=query) | Q(description__icontains=query)) & 
             ~Q(title__icontains='архив')
@@ -50,7 +54,6 @@ class ParticipantViewSet(viewsets.ModelViewSet):
     queryset = Participant.objects.all()
     serializer_class = ParticipantSerializer
 
-    # Доп. метод для лидеров
     @action(methods=['GET'], detail=False)
     def popular(self, request):
         from django.db.models import Count
@@ -62,9 +65,9 @@ class VoteViewSet(viewsets.ModelViewSet):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
 
-    # Фильтрация по текущему пользователю - ТРЕБОВАНИЕ НА "ОТЛИЧНО"
     def get_queryset(self):
+        """Ограничивает список голосов так, чтобы пользователь видел только свои голоса"""
         user = self.request.user
         if user.is_authenticated:
             return Vote.objects.filter(user=user)
-        return Vote.objects.none()
+        return Vote.objects.none() # Анонимам не показываем ничего

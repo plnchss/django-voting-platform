@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
     <title>Онлайн-голосования</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -25,11 +26,29 @@
         }
         header h1 { margin: 0; font-size: 24px; font-weight: 600; }
 
-        .auth-buttons a, .auth-buttons form { display: inline-block; margin-left: 10px; }
-        .auth-buttons a, .auth-buttons button {
-            padding: 5px 12px;
-            border-radius: 8px;
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-buttons a, .auth-buttons form { 
+            margin-left: 10px; 
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-buttons a {
+            padding: 0;
+            background: none;
+        }
+
+        .auth-buttons button, 
+        .auth-buttons a.nav-btn,
+        .search-container button {
             text-decoration: none;
+            height: 32px;
+            padding: 0 15px;
+            border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
@@ -37,101 +56,119 @@
             transition: all 0.25s;
             background: white;
             color: #7b2fbf;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
         }
-        .auth-buttons a:hover, .auth-buttons button:hover {
+
+        .auth-buttons button:hover, 
+        .auth-buttons a.nav-btn:hover,
+        .search-container button:hover {
             background: #ff66b2;
             color: white;
             transform: scale(1.05);
         }
 
-       .container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-    padding: 20px;
-    flex-grow: 1;
-}
-
-        .card {
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(6px);
-    border-radius: 12px;
-    padding: 12px 10px;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
-    border: 2px solid transparent;
-    min-height: 140px; /* оставляем минимальную высоту */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.25);
-        }
-
-        .card a {
-            text-decoration: none;
-            color: #fff;
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .card p {
-            color: #f0e6f7;
-            font-size: 12px;
-            margin-top: 6px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;  
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .active {
-            border-color: #ff66b2;
-            animation: pulse 1.5s infinite;
-        }
-
-        .active-label {
-            font-size: 10px;
-            padding: 2px 6px;
-            background-color: #ff66b2;
+        .auth-buttons .simple-link {
             color: white;
-            border-radius: 4px;
-            display: inline-block;
-            margin-top: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+        .auth-buttons .simple-link:hover { color: #ff66b2; }
+
+        /* --- СТИЛИ ПОИСКА --- */
+        .search-section {
+            display: flex;
+            justify-content: center;
+            padding: 30px 20px 10px 20px;
         }
 
+        .search-container {
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 10px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .search-container input {
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-container input:focus {
+            border-color: #ff66b2;
+        }
+
+        /* --- КАРТОЧКИ --- */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+        .card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(6px);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid transparent;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.25); }
+        .card a { text-decoration: none; color: #fff; font-weight: 600; font-size: 16px; }
+        .card p { color: #f0e6f7; font-size: 12px; margin: 10px 0; }
+        
+        .active-border { border-color: #ff66b2; animation: pulse 1.5s infinite; }
         @keyframes pulse {
             0% { box-shadow: 0 0 6px #ff66b2; }
             50% { box-shadow: 0 0 14px #ff66b2; }
             100% { box-shadow: 0 0 6px #ff66b2; }
         }
 
-        p.empty-message {
-            color: white;
-            font-size: 16px;
-            text-align: center;
-            width: 100%;
+        .status-badge {
+            font-size: 10px; 
+            padding: 4px 8px; 
+            background-color: #ff66b2; 
+            color: white; 
+            border-radius: 4px; 
+            display: inline-block; 
+            align-self: center;
         }
 
- 
-        .pagination {
-            text-align: center;
-            margin: 20px 0;
-            color: white;
+        .pagination { text-align: center; margin: 30px 0; color: white; }
+        .pagination a, .pagination span { 
+            margin: 0 5px; 
+            text-decoration: none; 
+            color: white; 
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background 0.3s;
         }
-        .pagination a, .pagination span {
-            margin: 0 5px;
-            text-decoration: none;
-            color: white;
-        }
-        .pagination .current {
-            font-weight: bold;
-            color: #350f2d;
-        }
+        .pagination a:hover { background: rgba(255,255,255,0.2); }
+        .current-page { font-weight: bold; background: #ff66b2; color: white !important; }
     </style>
 </head>
 <body>
@@ -140,50 +177,68 @@
     <h1>Онлайн-голосования</h1>
     <div class="auth-buttons">
         {% if user.is_authenticated %}
-            <span style="color:white; font-weight:500;">{{ user.username }}</span>
-            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+            <span style="color:white; font-weight:500; margin-right: 10px;">{{ user.username }}</span>
+            <a href="{% url 'voting_create' %}" class="nav-btn">+ Создать</a>
+            <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
                 <button type="submit">Выйти</button>
             </form>
             {% if user.is_staff %}
-                <a href="{% url 'admin:index' %}">Админка</a>
+                <a href="{% url 'admin:index' %}" class="simple-link">Админка</a>
             {% endif %}
         {% else %}
-            <a href="{% url 'login' %}">Войти</a>
-            <a href="{% url 'register' %}">Регистрация</a>
+            <a href="{% url 'login' %}" class="simple-link">Войти</a>
+            <a href="{% url 'register' %}" class="simple-link">Регистрация</a>
         {% endif %}
     </div>
 </header>
 
+<section class="search-section">
+    <form method="get" action="{% url 'index' %}" class="search-container">
+        <input type="text" name="q" placeholder="Поиск по названию или описанию..." value="{{ query }}">
+        <button type="submit">Найти</button>
+        {% if query %}
+            <a href="{% url 'index' %}" style="color: white; text-decoration: none; font-size: 12px; display: flex; align-items: center; margin-left: 5px;">Сбросить</a>
+        {% endif %}
+    </form>
+</section>
+
 <div class="container">
     {% for v in page_obj %}
-        <div class="card {% if v.is_active %}active{% endif %}">
+        <div class="card {% if v.is_active %}active-border{% endif %}">
             <a href="{% url 'voting_detail' v.id %}">{{ v.title }}</a>
-            <p>{{ v.description|truncatewords:12 }}</p>
+            <p>{{ v.description|truncatewords:15 }}</p>
             {% if v.is_active %}
-                <span class="active-label">Активно</span>
+                <span class="status-badge">АКТИВНО</span>
+            {% else %}
+                <span class="status-badge" style="background: rgba(0,0,0,0.3);">ЗАВЕРШЕНО</span>
             {% endif %}
         </div>
     {% empty %}
-        <p class="empty-message">Голосований пока нет</p>
+        <div style="grid-column: 1 / -1; text-align: center; color: white; padding-top: 40px;">
+            <h3>По вашему запросу ничего не найдено :(</h3>
+            <p>Попробуйте изменить параметры поиска или <a href="{% url 'index' %}" style="color: white;">вернуться к списку</a>.</p>
+        </div>
     {% endfor %}
 </div>
 
 <div class="pagination">
     {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}">← Назад</a>
+        <a href="?page=1{% if query %}&q={{ query }}{% endif %}">« Первая</a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">← Назад</a>
     {% endif %}
 
     {% for num in page_obj.paginator.page_range %}
         {% if page_obj.number == num %}
-            <span class="current">{{ num }}</span>
-        {% else %}
-            <a href="?page={{ num }}">{{ num }}</a>
+            <span class="current-page">{{ num }}</span>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
         {% endif %}
     {% endfor %}
 
     {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">Вперед →</a>
+        <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Вперед →</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}">Последняя »</a>
     {% endif %}
 </div>
 

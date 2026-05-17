@@ -45,6 +45,12 @@
             transform: scale(1.05);
         }
 
+        /* Стиль для кнопки создания в хедере */
+        .create-btn {
+            background: #4CAF50 !important;
+            color: white !important;
+        }
+
         .content {
             flex-grow: 1;
             padding: 20px;
@@ -63,6 +69,32 @@
         .back-link:hover { background-color: #ff66b2; color: white; }
 
         h1, h2, h3 { color: white; }
+
+        /* Блок управления CRUD для Задания 4 */
+        .admin-controls {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px dashed #ffeb3b;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .admin-controls strong { color: #fdfdfd; }
+        .btn-edit { color: #ffffff; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .btn-delete { color: #ffffff; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .btn-edit:hover, .btn-delete:hover { text-decoration: underline; }
+
+        .stats-box {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 14px;
+            border-left: 4px solid #ff66b2;
+        }
 
         .nomination { margin-bottom: 30px; }
         .participant {
@@ -94,6 +126,9 @@
     <div class="auth-buttons">
         {% if user.is_authenticated %}
             <span style="color:white; font-weight:500;">{{ user.username }}</span>
+            
+            <a href="{% url 'voting_create' %}" class="create-btn">+ Создать</a>
+
             <form action="{% url 'logout' %}" method="post" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit">Выйти</button>
@@ -110,16 +145,39 @@
 
 <div class="content">
     <a href="{% url 'index' %}" class="back-link">← К списку голосований</a>
+    
     <h1>{{ voting.title }}</h1>
     <p style="color:white;">{{ voting.description }}</p>
 
+    {% if user.is_staff or user == voting.owner %}
+    <div class="admin-controls">
+        <strong>Управление:</strong>
+        <a href="{% url 'voting_update' voting.id %}" class="btn-edit">Редактировать</a>
+        <a href="{% url 'voting_delete' voting.id %}" class="btn-delete"> Удалить</a>
+    </div>
+    {% endif %}
+
+    <div class="stats-box">
+        <strong>Информация о голосовании:</strong>
+        <p style="margin: 5px 0;">Дней до завершения: <strong>{{ days_remaining }}</strong></p>
+        <p style="margin: 5px 0;">Последняя активность: <strong>{{ last_activity|date:"d.m.Y H:i"|default:"Голосов еще нет" }}</strong></p>
+        
+        {% if is_ending_soon %}
+            <p style="margin: 5px 0; color: #ffffff; font-weight: bold;"> Внимание! Скоро завершается!</p>
+        {% endif %}
+    </div>
+
     <h2>Номинации</h2>
-    {% for nomination in voting.nominations.all %}
+    {% for nomination in nominations %}
         <div class="nomination">
-            <h3>{{ nomination.title }}</h3>
+            <h3>{{ nomination.title }} 
+                <span style="font-size: 13px; font-weight: normal; opacity: 0.8;">
+                    (всего участников: {{ nomination.participants_count_attr }})
+                </span>
+            </h3>
 
             {% if user.is_authenticated and nomination.id in user_votes %}
-                <p class="vote-message">Вы уже проголосовали в этой номинации. Голосовать можно только один раз.</p>
+                <p class="vote-message">Вы уже проголосовали в этой номинации.</p>
                 <form action="{% url 'unvote' user_votes|get_item:nomination.id %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="unvote-button">Отменить голос</button>
@@ -142,7 +200,7 @@
                                     <button type="submit">Голосовать</button>
                                 </form>
                             {% else %}
-                                <a href="{% url 'login' %}?next={{ request.path }}" style="color:white;">Войти, чтобы голосовать</a>
+                                <a href="{% url 'login' %}?next={{ request.path }}" style="color:white; font-size: 12px;">Войти, чтобы голосовать</a>
                             {% endif %}
                         </li>
                     {% empty %}

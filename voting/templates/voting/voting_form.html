@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background: linear-gradient(135deg, #1a1a1a, #2d0b21); 
+            color: white; 
+            font-family: 'Montserrat', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .form-container { 
+            background: rgba(255,255,255,0.05); 
+            backdrop-filter: blur(10px);
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 1px solid #ff66b2; 
+            width: 450px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h2 { text-align: center; color: #ff66b2; margin-bottom: 25px; }
+        
+        /* Стили для Django-формы */
+        p { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; color: #f0e6f7; }
+        
+        input[type="text"], 
+        input[type="datetime-local"],
+        input[type="file"],
+        textarea, 
+        select { 
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 8px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            background: rgba(0,0,0,0.3);
+            color: white;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #ff66b2;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .btn { 
+            background: #ff66b2; 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-weight: bold; 
+            font-size: 16px;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #ff3399; transform: scale(1.02); }
+        
+        .back-link { 
+            color: #aaa; 
+            text-decoration: none; 
+            display: block; 
+            text-align: center; 
+            margin-top: 20px; 
+            font-size: 14px; 
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: white; }
+
+        /* Стиль для ошибок валидации */
+        .errorlist { color: #ff4d4d; font-size: 12px; list-style: none; padding: 0; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>{{ title }}</h2>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn">{{ btn_text }}</button>
+        </form>
+        
+        <a href="{% url 'index' %}" class="back-link">← Назад на главную</a>
+    </div>
+</body>
+</html>

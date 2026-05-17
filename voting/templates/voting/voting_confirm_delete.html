@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Удаление</title>
+    <style>
+        body { background: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding-top: 100px; }
+        .confirm-box { display: inline-block; background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; border: 1px solid #ff4d4d; }
+        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="confirm-box">
+        <h2>Удалить "{{ voting.title }}"?</h2>
+        <p>Это действие нельзя отменить.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-delete">Да, удалить</button>
+            <a href="{% url 'voting_detail' voting.id %}" style="color: white; margin-left: 20px;">Отмена</a>
+        </form>
+    </div>
+</body>
+</html>
