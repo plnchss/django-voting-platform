@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Личный кабинет</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f6f8;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: #ffffff;
+            color: #2d3748;
+            padding: 18px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        header h1 { 
+            margin: 0; 
+            font-size: 22px; 
+            font-weight: 600; 
+            color: #1a202c;
+        }
+        header h1 a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .auth-buttons form { 
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+
+        .auth-buttons button, 
+        .auth-buttons a.nav-btn {
+            text-decoration: none;
+            height: 38px;
+            padding: 0 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease-in-out;
+            background: #4fd1c5;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .auth-buttons button:hover, 
+        .auth-buttons a.nav-btn:hover {
+            background: #38b2ac;
+            transform: translateY(-1px);
+        }
+
+        .auth-buttons a.nav-secondary {
+            background: #edf2f7;
+            color: #4a5568;
+        }
+        .auth-buttons a.nav-secondary:hover {
+            background: #e2e8f0;
+            color: #2d3748;
+            transform: translateY(-1px);
+        }
+
+        .auth-buttons .simple-link {
+            color: #718096;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .auth-buttons .simple-link:hover { 
+            color: #2d3748; 
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 32px;
+            width: -webkit-fill-available;
+            box-sizing: border-box;
+            flex-grow: 1;
+        }
+
+        .profile-title {
+            font-size: 26px;
+            font-weight: 600;
+            color: #1a202c;
+            margin-top: 0;
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4a5568;
+            margin-top: 40px;
+            margin-bottom: 18px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease-in-out;
+            border: 1px solid #e2e8f0;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+        .card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        }
+        .card .card-header-link { 
+            text-decoration: none; 
+            color: #1a202c; 
+            font-weight: 600; 
+            font-size: 18px; 
+            line-height: 1.4;
+        }
+        .card .card-header-link:hover {
+            color: #4fd1c5;
+        }
+        .card p { 
+            color: #718096; 
+            font-size: 14px; 
+            margin: 12px 0; 
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+        
+        .active-border { 
+            border-left: 4px solid #4fd1c5; 
+        }
+
+        .draft-border {
+            border-left: 4px solid #cbd5e0;
+        }
+
+        .status-badge {
+            font-size: 11px; 
+            font-weight: 600;
+            padding: 6px 12px; 
+            background-color: #e6fffa; 
+            color: #234e52; 
+            border-radius: 6px; 
+            display: inline-block; 
+            align-self: flex-start;
+            letter-spacing: 0.5px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            border-top: 1px solid #edf2f7;
+            padding-top: 12px;
+        }
+
+        .action-link {
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            color: #718096;
+            transition: color 0.2s;
+        }
+        .action-link:hover {
+            color: #2d3748;
+        }
+        .action-link.delete {
+            color: #e53e3e;
+            margin-left: auto;
+        }
+        .action-link.delete:hover {
+            color: #c53030;
+        }
+
+        .empty-message {
+            color: #a0aec0;
+            font-size: 14px;
+            font-style: italic;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><a href="{% url 'index' %}">Онлайн-голосования</a></h1>
+    <div class="auth-buttons">
+        <span style="color: #4a5568; font-weight: 600; margin-right: 4px;">{{ user.username }}</span>
+        <a href="{% url 'index' %}" class="nav-btn nav-secondary">На главную</a>
+        <a href="{% url 'voting_create' %}" class="nav-btn">+ Создать</a>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" style="background: transparent; color: #a0aec0; font-weight: 500; border: 1px solid #e2e8f0;">Выйти</button>
+        </form>
+        {% if user.is_staff %}
+            <a href="{% url 'admin:index' %}" class="simple-link" style="margin-left: 8px;">Админка</a>
+        {% endif %}
+    </div>
+</header>
+
+<div class="main-content">
+    <h2 class="profile-title">Ваша панель управления</h2>
+
+    <div class="section-title">Активные голосования</div>
+    <div class="grid-container">
+        {% for v in active_votings %}
+            <div class="card active-border">
+                <div>
+                    <a href="{% url 'voting_detail' v.id %}" class="card-header-link">{{ v.title }}</a>
+                    <p>{{ v.description|truncatewords:12 }}</p>
+                </div>
+                <div>
+                    <span class="status-badge">АКТИВНО</span>
+                    <div class="card-actions">
+                        <a href="{% url 'voting_update' v.id %}" class="action-link">Редактировать</a>
+                        <a href="{% url 'voting_delete' v.id %}" class="action-link delete">Удалить</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="empty-message">У вас нет активных голосований.</p>
+        {% endfor %}
+    </div>
+
+    <div class="section-title">Черновики (Закрытые)</div>
+    <div class="grid-container">
+        {% for v in draft_votings %}
+            <div class="card draft-border">
+                <div>
+                    <a href="{% url 'voting_detail' v.id %}" class="card-header-link">{{ v.title }}</a>
+                    <p>{{ v.description|truncatewords:12 }}</p>
+                </div>
+                <div>
+                    <span class="status-badge" style="background: #edf2f7; color: #4a5568;">ЧЕРНОВИК</span>
+                    <div class="card-actions">
+                        <a href="{% url 'voting_update' v.id %}" class="action-link">Редактировать</a>
+                        <a href="{% url 'voting_delete' v.id %}" class="action-link delete">Удалить</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="empty-message">Черновики отсутствуют.</p>
+        {% endfor %}
+    </div>
+
+    <div class="section-title">Архивные (Завершенные)</div>
+    <div class="grid-container">
+        {% for v in archive_votings %}
+            <div class="card">
+                <div>
+                    <a href="{% url 'voting_detail' v.id %}" class="card-header-link">{{ v.title }}</a>
+                    <p>{{ v.description|truncatewords:12 }}</p>
+                </div>
+                <div>
+                    <span class="status-badge" style="background: #edf2f7; color: #a0aec0;">ЗАВЕРШЕНО</span>
+                    <div class="card-actions">
+                        <a href="{% url 'voting_update' v.id %}" class="action-link">Редактировать</a>
+                        <a href="{% url 'voting_delete' v.id %}" class="action-link delete">Удалить</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="empty-message">В архиве пока ничего нет.</p>
+        {% endfor %}
+    </div>
+</div>
+
+</body>
+</html>

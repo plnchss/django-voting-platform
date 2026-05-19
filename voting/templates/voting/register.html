@@ -1,94 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Регистрация</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #7b2fbf, #ffb6c1);
-            min-height: 100vh;
-        }
+{% extends 'voting/base.html' %}
 
-        header {
-            background-color: rgba(0,0,0,0.95);
-            color: white;
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+{% block title %}Регистрация{% endblock %}
 
-        .auth-buttons a {
-            padding: 5px 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.25s;
-            background: white;
-            color: #7b2fbf;
-        }
-        .auth-buttons a:hover { background: #ff66b2; color: white; transform: scale(1.05); }
+{% block content %}
+<div class="form-page-container">
+    
+    <a href="{% url 'index' %}" class="back-link">← На главную</a>
 
-        .form-container {
-            max-width: 400px;
-            margin: 60px auto;
-            background: rgba(255,255,255,0.15);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            backdrop-filter: blur(6px);
-        }
+    <div class="form-card-container">
+        <h2 class="form-title">Регистрация</h2>
+        
+        <form method="post" class="django-styled-form">
+            {% csrf_token %}
+            
+            {# Django сам сгенерирует p, label, input и мелкий текст подсказок helptext #}
+            {{ form.as_p }}
+            
+            <button type="submit" class="submit-form-btn">Зарегистрироваться</button>
+        </form>
 
-        h2 { text-align: center; color: white; margin-bottom: 20px; }
-
-        form { display: flex; flex-direction: column; }
-        form input { margin-bottom: 15px; padding: 10px; border-radius: 8px; border: none; font-size: 14px; }
-
-        form button {
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            background-color: #ff66b2;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        form button:hover { background-color: #cc2970; transform: scale(1.05); }
-
-        .login-link {
-            text-align: center;
-            margin-top: 12px;
-        }
-        .login-link a { color: #fcd6e7; font-weight: 600; text-decoration: none; }
-        .login-link a:hover { text-decoration: underline; }
-    </style>
-</head>
-<body>
-<header>
-    <h1>Онлайн-голосования</h1>
-    <div class="auth-buttons"><a href="{% url 'login' %}">Войти</a></div>
-</header>
-
-<div class="form-container">
-    <h2>Регистрация</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Зарегистрироваться</button>
-    </form>
-    <div class="login-link">
-        Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a>
+        <div class="form-footer-link">
+            <span>Уже есть аккаунт?</span> 
+            <a href="{% url 'login' %}" class="simple-link-accent">Войти</a>
+        </div>
     </div>
+
 </div>
-</body>
-</html>
+{% endblock %}

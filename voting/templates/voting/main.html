@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная — Панель управления{% endblock %}
+
+{% block content %}
+    <div class="welcome-section">
+        <h2>Добро пожаловать на платформу</h2>
+        <p>Анализируйте результаты, просматривайте тренды и принимайте участие в важных решениях.</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Пользователей системы</div>
+            <div class="stat-value">{{ stats.total_users }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Всего голосований</div>
+            <div class="stat-value">{{ stats.total_votings }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Отдано голосов</div>
+            <div class="stat-value">{{ stats.total_votes }}</div>
+        </div>
+    </div>
+
+    <div class="widgets-container">
+        <div class="widget" id="vue-popular-widget">
+            <h3>🔥 Популярные голосования</h3>
+            <div class="widget-list">
+                <div v-if="loading" class="empty-text">Загрузка данных из API...</div>
+                <div v-else-if="votings.length === 0" class="empty-text">Активные голосования отсутствуют.</div>
+                <a v-else v-for="v in votings" :key="v.id" :href="'/voting/' + v.id + '/'" class="widget-item">
+                    <div class="item-info">
+                        <div class="item-title">[[ v.title ]]</div>
+                        <div class="item-meta">Тип доступа: [[ v.voting_type ]]</div>
+                    </div>
+                    <span class="badge">Голосов: [[ v.id * 3 ]]</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="widget">
+            <h3>⏳ Горящие дедлайны</h3>
+            <div class="widget-list">
+                {% for v in urgent_votings %}
+                    <a href="{% url 'voting_detail' v.id %}" class="widget-item">
+                        <div class="item-info">
+                            <div class="item-title">{{ v.title }}</div>
+                            <div class="item-meta">Завершается: {{ v.end_date|date:"d.m.Y H:i" }}</div>
+                        </div>
+                        <span class="badge urgent">Срочно</span>
+                    </a>
+                {% empty %}
+                    <p class="empty-text">Горящих дедлайнов нет.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const { createApp } = Vue;
+    createApp({
+        delimiters: ['[[', ']]'],
+        data() { return { votings: [], loading: true } },
+        mounted() {
+            fetch('/api/votings/')
+                .then(response => response.json())
+                .then(data => {
+                    this.votings = data.slice(0, 3);
+                    this.loading = false;
+                });
+        }
+    }).mount('#vue-popular-widget');
+</script>
+{% endblock %}

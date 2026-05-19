@@ -1,217 +1,100 @@
-{% load custom_tags %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ voting.title }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #7b2fbf, #ffb6c1);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+{% extends 'voting/base.html' %}
 
-        header {
-            background-color: rgba(0,0,0,0.95);
-            color: white;
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+{% block title %}{{ voting.title }}{% endblock %}
 
-        .auth-buttons a, .auth-buttons form, .auth-buttons span { display: inline-block; margin-left: 10px; }
-        .auth-buttons a, .auth-buttons button {
-            padding: 5px 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.25s;
-            background: white;
-            color: #7b2fbf;
-        }
-        .auth-buttons a:hover, .auth-buttons button:hover {
-            background: #ff66b2;
-            color: white;
-            transform: scale(1.05);
-        }
+{% block content %}
+<div class="detail-container">
+    
+    <a href="{% url 'index' %}" class="back-link">← К списку голосованиий</a>
 
-        /* Стиль для кнопки создания в хедере */
-        .create-btn {
-            background: #4CAF50 !important;
-            color: white !important;
-        }
-
-        .content {
-            flex-grow: 1;
-            padding: 20px;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-bottom: 15px;
-            padding: 6px 12px;
-            background-color: rgba(255,255,255,0.15);
-            color: white;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .back-link:hover { background-color: #ff66b2; color: white; }
-
-        h1, h2, h3 { color: white; }
-
-        /* Блок управления CRUD для Задания 4 */
-        .admin-controls {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px dashed #ffeb3b;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .admin-controls strong { color: #fdfdfd; }
-        .btn-edit { color: #ffffff; text-decoration: none; font-weight: 600; font-size: 14px; }
-        .btn-delete { color: #ffffff; text-decoration: none; font-weight: 600; font-size: 14px; }
-        .btn-edit:hover, .btn-delete:hover { text-decoration: underline; }
-
-        .stats-box {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            color: white;
-            font-size: 14px;
-            border-left: 4px solid #ff66b2;
-        }
-
-        .nomination { margin-bottom: 30px; }
-        .participant {
-            display: flex;
-            align-items: center;
-            background: rgba(255,255,255,0.15);
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
-        }
-        .participant:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.25); }
-        .participant img { border-radius: 50%; width: 50px; height: 50px; object-fit: cover; margin-right: 12px; }
-        .participant-info { flex-grow: 1; color: #f0e6f7; }
-        .participant-info strong { margin-right: 6px; }
-
-        .vote-message { font-style: italic; color: #ffd6eb; margin-bottom: 10px; }
-        .participant form button, .unvote-button {
-            background-color: #ff66b2; color: white; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer;
-            transition: all 0.2s;
-        }
-        .participant form button:hover, .unvote-button:hover { background-color: #cc2970; transform: scale(1.05); }
-    </style>
-</head>
-<body>
-<header>
-    <h1>Онлайн-голосования</h1>
-    <div class="auth-buttons">
-        {% if user.is_authenticated %}
-            <span style="color:white; font-weight:500;">{{ user.username }}</span>
-            
-            <a href="{% url 'voting_create' %}" class="create-btn">+ Создать</a>
-
-            <form action="{% url 'logout' %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit">Выйти</button>
-            </form>
-            {% if user.is_staff %}
-                <a href="{% url 'admin:index' %}">Админка</a>
+    <div class="voting-main-card">
+        <div class="voting-meta">
+            {% if voting.is_active %}
+                <span class="status-badge active">Активно</span>
+            {% else %}
+                <span class="status-badge">Завершено</span>
             {% endif %}
-        {% else %}
-            <a href="{% url 'login' %}">Войти</a>
-            <a href="{% url 'register' %}">Регистрация</a>
+        </div>
+        <h2 class="voting-title">{{ voting.title }}</h2>
+        {% if voting.description %}
+            <p class="voting-desc">{{ voting.description }}</p>
         {% endif %}
     </div>
-</header>
 
-<div class="content">
-    <a href="{% url 'index' %}" class="back-link">← К списку голосований</a>
-    
-    <h1>{{ voting.title }}</h1>
-    <p style="color:white;">{{ voting.description }}</p>
-
-    {% if user.is_staff or user == voting.owner %}
-    <div class="admin-controls">
-        <strong>Управление:</strong>
-        <a href="{% url 'voting_update' voting.id %}" class="btn-edit">Редактировать</a>
-        <a href="{% url 'voting_delete' voting.id %}" class="btn-delete"> Удалить</a>
+    {% if user == voting.owner or user.is_staff %}
+    <div class="management-bar">
+        <span class="management-title">Управление:</span>
+        <a href="#" class="mgmt-link">Редактировать</a>
+        <a href="#" class="mgmt-link delete">Удалить</a>
     </div>
     {% endif %}
 
-    <div class="stats-box">
-        <strong>Информация о голосовании:</strong>
-        <p style="margin: 5px 0;">Дней до завершения: <strong>{{ days_remaining }}</strong></p>
-        <p style="margin: 5px 0;">Последняя активность: <strong>{{ last_activity|date:"d.m.Y H:i"|default:"Голосов еще нет" }}</strong></p>
-        
-        {% if is_ending_soon %}
-            <p style="margin: 5px 0; color: #ffffff; font-weight: bold;"> Внимание! Скоро завершается!</p>
-        {% endif %}
+    <div class="info-widget">
+        <h4 class="info-widget-title">Информация о голосовании:</h4>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Дней до завершения:</span>
+                <span class="info-value">
+                    {{ voting.days_left }}
+                </span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Последняя активность:</span>
+                <span class="info-value">Голосов еще нет</span>
+            </div>
+        </div>
     </div>
 
-    <h2>Номинации</h2>
-    {% for nomination in nominations %}
-        <div class="nomination">
-            <h3>{{ nomination.title }} 
-                <span style="font-size: 13px; font-weight: normal; opacity: 0.8;">
-                    (всего участников: {{ nomination.participants_count_attr }})
-                </span>
-            </h3>
+    <form method="post" action="#" class="nominations-section">
+        {% csrf_token %}
+        <h3 class="nominations-title">Номинации и участники</h3>
+        
+        <div class="nominations-list" style="display: flex; flex-direction: column; gap: 30px;">
+            {% for nomination in voting.nominations.all %}
+                <div class="nomination-block" style="border-bottom: 1px dashed var(--border-color); padding-bottom: 20px;">
+                    <h4 style="margin: 0 0 5px 0; font-size: 18px; color: var(--text-main);">{{ nomination.title }}</h4>
+                    {% if nomination.description %}
+                        <p class="voting-desc" style="margin-bottom: 15px; font-size: 13px;">{{ nomination.description }}</p>
+                    {% endif %}
 
-            {% if user.is_authenticated and nomination.id in user_votes %}
-                <p class="vote-message">Вы уже проголосовали в этой номинации.</p>
-                <form action="{% url 'unvote' user_votes|get_item:nomination.id %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="unvote-button">Отменить голос</button>
-                </form>
-            {% else %}
-                <ul style="padding:0; list-style:none;">
-                    {% for participant in nomination.participants.all %}
-                        <li class="participant">
-                            {% if participant.avatar %}
-                                <img src="{{ participant.avatar.url }}" alt="{{ participant.name }}">
-                            {% else %}
-                                <img src="https://via.placeholder.com/50" alt="Нет фото">
-                            {% endif %}
-                            <div class="participant-info">
-                                <strong>{{ participant.name }}</strong> — {{ participant.votes.count }} голосов
-                            </div>
-                            {% if user.is_authenticated %}
-                                <form action="{% url 'vote' participant.id %}" method="post">
-                                    {% csrf_token %}
-                                    <button type="submit">Голосовать</button>
-                                </form>
-                            {% else %}
-                                <a href="{% url 'login' %}?next={{ request.path }}" style="color:white; font-size: 12px;">Войти, чтобы голосовать</a>
-                            {% endif %}
-                        </li>
-                    {% empty %}
-                        <li style="color:white;">Нет участников</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+                    <div class="participants-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+                        {% for participant in nomination.participants.all %}
+                            <label class="nomination-label" style="display: flex; align-items: center; gap: 15px;">
+                                <input type="radio" name="nomination_{{ nomination.id }}" value="{{ participant.id }}" required 
+                                       {% if not voting.is_active %}disabled{% endif %}>
+                                
+                                {% if participant.avatar %}
+                                    <img src="{{ participant.avatar.url }}" alt="{{ participant.name }}" 
+                                         style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color);">
+                                {% else %}
+                                    <div style="width: 45px; height: 45px; border-radius: 50%; background: var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-muted);">No px</div>
+                                {% endif %}
+
+                                <div class="participant-info">
+                                    <span class="nomination-text" style="display: block; font-weight: 600;">{{ participant.name }}</span>
+                                    {% if participant.description %}
+                                        <span class="info-label" style="font-size: 12px; display: block; margin-top: 2px;">{{ participant.description }}</span>
+                                    {% endif %}
+                                </div>
+                            </label>
+                        {% empty %}
+                            <p class="empty-text" style="font-style: italic; font-size: 13px; color: var(--text-muted); margin-left: 10px;">В этой номинации пока нет участников.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="nomination-label nomination-empty">
+                    <span class="voting-desc" style="font-style: italic;">В данном голосовании еще нет номинаций</span>
+                </div>
+            {% endfor %}
         </div>
-    {% empty %}
-        <p style="color:white;">Нет номинаций</p>
-    {% endfor %}
+
+        {% if voting.is_active %}
+            <button type="submit" class="submit-vote-btn">Отдать голос</button>
+        {% else %}
+            <button type="button" class="submit-vote-btn" disabled>Голосование завершено</button>
+        {% endif %}
+    </form>
+
 </div>
-</body>
-</html>
+{% endblock %}

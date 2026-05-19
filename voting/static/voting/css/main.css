@@ -1,0 +1,799 @@
+/* --- Общие стили --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    font-size: var(--font-base);
+    font-weight: var(--font-weight-base);
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-weight-bold);
+    margin-top: 0;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* --- Темы оформления (Переменные) --- */
+
+/* Обычная светлая тема */
+:root {
+    --bg-main: #faf6f0; 
+    --bg-card: #ffffff; 
+    
+    --text-main: #2d2a26; 
+    --text-muted: #5c554e; 
+    
+    --border-color: #d8cebf; 
+    
+    --accent-color: #ab83e8; 
+    --accent-hover: #9168ce; 
+    
+    --font-base: 14px;
+    --font-weight-base: 400;
+    --font-weight-bold: 600;
+}
+
+/* Режим темной темы */
+body.dark-theme {
+    --bg-main: #1c1a17; 
+    --bg-card: #2d2a26; 
+    
+    --text-main: #faf6f0; 
+    --text-muted: #a0968a; 
+    
+    --border-color: #5c554e; 
+    
+    --accent-color: #ab83e8; 
+    --accent-hover: #9168ce;
+}
+
+/* Режим доступности (Accessible-Mode) */
+body.accessible-mode {
+    --bg-main: #ffffff; 
+    --bg-card: #ffffff;
+    
+    --text-main: #000000; 
+    --text-muted: #000000;
+    
+    --border-color: #000000; 
+    
+    --accent-color: #000000; 
+    --accent-hover: #333333;
+    
+    --font-base: 16px; 
+    --font-weight-base: 700; 
+    --font-weight-bold: 900;
+}
+
+body.accessible-mode a {
+    text-decoration: underline;
+}
+
+/* --- Header --- */
+header {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--border-color);
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+
+header h1 {
+    margin: 0;
+    font-size: 28px;
+    color: inherit;
+}
+
+header h1 a {
+    color: inherit;
+}
+
+header h1 a:hover {
+    text-decoration: none;
+    color: var(--accent-color);
+}
+
+.controls-panel {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.control-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-btn:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.control-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+.auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.auth-buttons a {
+    color: var(--text-main);
+}
+
+.auth-buttons form {
+    margin: 0;
+}
+
+.nav-btn {
+    background: transparent;
+    border: 2px solid var(--border-color);
+    color: var(--text-main);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    transition: all 0.2s;
+    display: block;
+}
+
+.nav-btn:hover {
+    border-color: var(--accent-color);
+    background: rgba(171, 131, 232, 0.1);
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.nav-btn-accent {
+    background: var(--accent-color);
+    border: 2px solid var(--accent-color);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    transition: all 0.2s;
+    display: block;
+}
+
+.nav-btn-accent:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    text-decoration: none;
+}
+
+.simple-link-accent {
+    color: var(--accent-color);
+    font-weight: var(--font-weight-bold);
+}
+
+.simple-link-accent:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+/* Оверрайды кнопок в шапке для A11y */
+body.accessible-mode .control-btn,
+body.accessible-mode .nav-btn,
+body.accessible-mode .simple-link-accent {
+    background: transparent;
+    border: 3px solid #000000;
+    color: #000000;
+}
+
+body.accessible-mode .nav-btn-accent {
+    background: #000000;
+    border: 3px solid #000000;
+    color: #ffffff;
+}
+
+body.accessible-mode .control-btn svg {
+    fill: #000000;
+}
+
+/* --- Главная страница / Лента карточек --- */
+.main-content {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 40px;
+    width: 100%;
+}
+
+.search-container {
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    display: flex;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.search-container input {
+    flex-grow: 1;
+    border: 2px solid var(--border-color);
+    padding: 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 16px;
+    background: transparent;
+    color: var(--text-main);
+}
+
+.search-container input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.search-container button {
+    background: var(--accent-color);
+    border: none;
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: var(--font-weight-bold);
+}
+
+.search-container button:hover {
+    background: var(--accent-hover);
+}
+
+body.accessible-mode .search-container {
+    border: 3px solid #000000;
+}
+
+body.accessible-mode .search-container input {
+    border: 3px solid #000000;
+    color: #000000;
+}
+
+body.accessible-mode .search-container button {
+    background: #000000;
+    color: #ffffff;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+}
+
+.voting-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    padding: 25px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, border-color 0.2s;
+    overflow: hidden;
+}
+
+.voting-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-color);
+}
+
+.voting-card::before,
+.voting-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-color);
+    transition: background-color 0.3s;
+}
+
+.voting-card::before { left: 0; }
+.voting-card::after { right: 0; }
+
+.voting-card-content {
+    margin-bottom: 20px;
+}
+
+.voting-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+    color: var(--text-main);
+}
+
+.voting-card p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.voting-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+body.accessible-mode .voting-card {
+    border: 3px solid #000000;
+}
+
+body.accessible-mode .voting-card::before,
+body.accessible-mode .voting-card::after {
+    background: #000000;
+}
+
+/* Статусы (Общие) */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    display: inline-block;
+    background: #e5e5e5;
+    color: var(--text-muted);
+}
+
+.status-badge.active {
+    background: rgba(171, 131, 232, 0.1);
+    color: var(--accent-color);
+}
+
+body.accessible-mode .status-badge {
+    background: #000000;
+    color: #ffffff;
+    border-radius: 4px;
+}
+
+/* Пагинация */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.pagination-item {
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    color: var(--text-main);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-item:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.pagination-item.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #ffffff;
+}
+
+body.accessible-mode .pagination-item {
+    background: transparent;
+    border: 3px solid #000000;
+    color: #000000;
+}
+
+body.accessible-mode .pagination-item:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+body.accessible-mode .pagination-item.active {
+    background: #000000;
+    color: #ffffff;
+}
+
+
+/* --- ТОЧНАЯ СТИЛИЗАЦИЯ ДЕТАЛЬНОЙ СТРАНИЦЫ (detail.html) --- */
+.detail-container {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-weight: var(--font-weight-bold);
+    color: var(--text-muted);
+}
+
+.back-link:hover {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+/* Главный блок с названием */
+.voting-main-card {
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 35px 40px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.voting-main-card::before,
+.voting-main-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-color);
+    transition: background-color 0.3s;
+}
+.voting-main-card::before { left: 0; }
+.voting-main-card::after { right: 0; }
+
+.voting-meta {
+    margin-bottom: 15px;
+}
+
+.voting-title {
+    font-size: 32px;
+    margin: 0 0 15px 0;
+    color: var(--text-main);
+}
+
+.voting-desc {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Панель управления (для создателя/админа) */
+.management-bar {
+    background: rgba(171, 131, 232, 0.05);
+    border: 2px dashed var(--accent-color);
+    border-radius: 10px;
+    padding: 16px 25px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.management-title {
+    font-weight: var(--font-weight-bold);
+    color: var(--text-main);
+}
+
+.mgmt-link {
+    font-weight: var(--font-weight-bold);
+    color: var(--accent-color);
+}
+
+.mgmt-link:hover {
+    color: var(--accent-hover);
+}
+
+.mgmt-link.delete {
+    color: #e63946;
+}
+
+.mgmt-link.delete:hover {
+    color: #c32f3a;
+}
+
+/* Виджет информации */
+.info-widget {
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 25px 30px;
+    margin-bottom: 30px;
+}
+
+.info-widget-title {
+    font-size: 16px;
+    font-weight: var(--font-weight-bold);
+    margin: 0 0 20px 0;
+    color: var(--text-main);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.info-label {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.info-value {
+    font-size: 16px;
+    font-weight: var(--font-weight-bold);
+    color: var(--text-main);
+}
+
+/* Форма и Номинации */
+.nominations-section {
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 35px 40px;
+    margin-bottom: 40px;
+}
+
+.nominations-title {
+    font-size: 22px;
+    margin: 0 0 25px 0;
+    color: var(--text-main);
+}
+
+.nominations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.nomination-label {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 18px 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: var(--bg-main);
+    transition: all 0.2s;
+}
+
+.nomination-label:hover {
+    border-color: var(--accent-color);
+    background-color: var(--bg-card);
+}
+
+.nomination-label input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    accent-color: var(--accent-color);
+    cursor: pointer;
+}
+
+.nomination-text {
+    font-size: 16px;
+    color: var(--text-main);
+    font-weight: var(--font-weight-base);
+}
+
+/* Пустое состояние номинаций */
+.nomination-empty {
+    border-style: dashed;
+    background: transparent;
+    justify-content: center;
+    cursor: default;
+}
+
+.nomination-empty:hover {
+    border-color: var(--border-color);
+    background: transparent;
+}
+
+/* Кнопка проголосовать */
+.submit-vote-btn {
+    background: var(--accent-color);
+    border: 2px solid var(--accent-color);
+    color: #ffffff;
+    padding: 14px 35px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: var(--font-weight-bold);
+    transition: all 0.2s;
+}
+
+.submit-vote-btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.submit-vote-btn:disabled {
+    background: var(--border-color);
+    border-color: var(--border-color);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+/* Адаптация детальной страницы под A11y режим */
+body.accessible-mode .voting-main-card,
+body.accessible-mode .info-widget,
+body.accessible-mode .nominations-section,
+body.accessible-mode .nomination-label {
+    border: 3px solid #000000;
+    background: #ffffff;
+}
+
+body.accessible-mode .voting-main-card::before,
+body.accessible-mode .voting-main-card::after {
+    background: #000000;
+}
+
+body.accessible-mode .management-bar {
+    background: transparent;
+    border: 3px dashed #000000;
+}
+
+body.accessible-mode .mgmt-link {
+    color: #000000;
+    text-decoration: underline;
+}
+
+body.accessible-mode .nomination-label input[type="radio"] {
+    accent-color: #000000;
+}
+
+body.accessible-mode .submit-vote-btn {
+    background: #000000;
+    border: 3px solid #000000;
+    color: #ffffff;
+}
+
+body.accessible-mode .submit-vote-btn:hover:not(:disabled) {
+    background: #333333;
+}
+
+.welcome-section { margin-bottom: 40px; }
+.welcome-section h2 { font-size: 28px; font-weight: 700; margin: 0 0 8px 0; }
+.welcome-section p { color: var(--text-muted); margin: 0; font-size: 16px; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 48px; }
+.stat-card { background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); }
+.stat-card .stat-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+.stat-card .stat-value { font-size: 32px; font-weight: 700; color: var(--text-main); }
+
+.widgets-container { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+@media (max-width: 900px) { .widgets-container { grid-template-columns: 1fr; } }
+
+.widget { background: var(--bg-card); border-radius: 16px; padding: 32px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); }
+.widget h3 { font-size: 20px; font-weight: 600; margin-top: 0; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--bg-main); }
+.widget-list { display: flex; flex-direction: column; gap: 16px; }
+.widget-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: var(--bg-main); border-radius: 8px; transition: all 0.2s; text-decoration: none; color: inherit; border: 1px solid transparent; }
+.widget-item:hover { border-color: var(--border-color); transform: translateX(2px); }
+.item-info .item-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+.item-info .item-meta { font-size: 12px; color: var(--text-muted); }
+.badge { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; background: var(--badge-bg); color: var(--badge-text); }
+.badge.urgent { background: #fff5f5; color: #9b2c2c; }
+.empty-text { color: var(--text-muted); font-size: 14px; font-style: italic; }
+
+/* --- МЕДИА-ЗАПРОСЫ ДЛЯ ПЕЧАТИ  --- */
+@media print {
+    body {
+        background: #ffffff;
+        color: #000000;
+        font-size: 12pt;
+    }
+
+    /* Селекторы скрытия интерфейса для печати */
+    header,
+    .controls-panel,
+    .auth-buttons,
+    .search-container,
+    .pagination,
+    .back-link,
+    .management-bar,
+    .submit-vote-btn,
+    input[type="radio"] {
+        display: none;
+    }
+
+    .main-content,
+    .detail-container {
+        margin: 0;
+        padding: 0;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .voting-main-card,
+    .voting-card,
+    .info-widget,
+    .nominations-section,
+    .nomination-label {
+        border: 1px solid #000000;
+        background: #ffffff;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 0;
+        page-break-inside: avoid;
+        box-shadow: none;
+    }
+
+    .voting-main-card::before,
+    .voting-main-card::after {
+        display: none;
+    }
+
+    .voting-title {
+        font-size: 24pt;
+        color: #000000;
+    }
+
+    .voting-desc,
+    .nomination-text,
+    .info-label,
+    .info-value {
+        color: #000000;
+    }
+
+    
+}

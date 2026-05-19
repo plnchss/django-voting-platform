@@ -5,19 +5,42 @@ from django.contrib.auth import login
 from django.utils.timezone import now
 from django.core.paginator import Paginator
 from django.db.models import Count, Max, Q, F
-
+from django.contrib.auth import get_user_model
 
 from .models import Voting, Nomination, Participant, Vote, VotingParticipation
 from .forms import VotingForm
 
-# ------------------ 1. ОТОБРАЖЕНИЕ И ПОИСК (Задание 6) ------------------
+
+def main_page(request):
+    current_time = now()
+    
+    base_qs = Voting.objects.filter(
+        start_date__lte=current_time, 
+        end_date__gte=current_time
+    ).filter(Q(voting_type='public') | Q(voting_type='invite_only'))
+
+    popular_votings = base_qs.annotate(
+        total_votes=Count('nominations__participants__votes')
+    ).order_by('-total_votes')[:3]
+
+    urgent_votings = base_qs.order_by('end_date')[:3]
+
+    stats = {
+        'total_users': get_user_model().objects.count(),
+        'total_votings': Voting.objects.count(),
+        'total_votes': Vote.objects.count(),
+    }
+
+    return render(request, 'voting/main.html', {
+        'popular_votings': popular_votings,
+        'urgent_votings': urgent_votings,
+        'stats': stats,
+    })
+
 
 def index(request):
-    """Главная страница с поиском через __icontains и пагинацией"""
-    # 1. Получаем поисковый запрос из URL (параметр ?q=)
     query = request.GET.get('q', '').strip()
     
-    # 2. Базовый QuerySet (Безопасность: фильтрация по правам доступа)
     if request.user.is_authenticated:
         votings_qs = Voting.objects.filter(
             Q(voting_type='public') | Q(owner=request.user)
@@ -25,17 +48,13 @@ def index(request):
     else:
         votings_qs = Voting.objects.filter(voting_type='public')
 
-    # 3. ЗАДАНИЕ 6: Применяем поиск (фильтрация по подстроке без учета регистра)
     if query:
         votings_qs = votings_qs.filter(
             Q(title__icontains=query) | Q(description__icontains=query)
         )
 
-    # 4. ОПТИМИЗАЦИЯ: select_related (JOIN) и prefetch_related (доп. запрос для списков)
-    # Это решает проблему N+1 запросов к базе данных.
     votings_list = votings_qs.select_related('owner').prefetch_related('nominations').order_by("-created_at")
     
-    # 5. Пагинация (Задание про списки объектов)
     paginator = Paginator(votings_list, 8) 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -46,23 +65,19 @@ def index(request):
         'current_time': now()
     })
 
+
 def voting_detail(request, voting_id):
-    """Детальная страница (Задание 5: get_object_or_404)"""
-    # get_object_or_404 автоматически вернет 404 ошибку, если ID не существует
     voting = get_object_or_404(
         Voting.objects.select_related('owner').prefetch_related('nominations__participants'), 
         pk=voting_id
     )
     
-    #добавляем "виртуальное" поле с количеством участников к каждой номинации
     nominations = voting.nominations.annotate(
         participants_count_attr=Count('participants')
     )
 
-    # ЗАДАНИЕ 6: Использование метода count() для агрегации данных
     total_votes_in_voting = Vote.objects.filter(participant__nomination__voting=voting).count()
 
-    # Словарь для хранения голосов текущего пользователя (подсветка выбора в шаблоне)
     user_votes = {}
     if request.user.is_authenticated:
         votes = Vote.objects.filter(
@@ -80,11 +95,8 @@ def voting_detail(request, voting_id):
         'is_finished': voting.is_finished(),
     })
 
-# ------------------ 2. ОПТИМИЗАЦИЯ ВЫБОРКИ (Задание 6) ------------------
 
 def voting_stats(request):
-    """Демонстрация values() и values_list()"""
-    # values() — возвращает список словарей (только нужные поля, экономит память)
     raw_data = Voting.objects.values('title', 'start_date')
     titles_only = Voting.objects.values_list('title', flat=True)
     
@@ -93,19 +105,16 @@ def voting_stats(request):
         'titles_only': titles_only
     })
 
-# ------------------ 3. CRUD: ОПЕРАЦИИ (Задание 5: Создание, Редактирование, Удаление) ------------------
 
-@login_required # Декоратор: запрещает доступ неавторизованным (Задание про безопасность)
+@login_required
 def voting_create(request):
     if request.method == "POST":
-        # request.FILES нужен для загрузки файлов/изображений
         form = VotingForm(request.POST, request.FILES)
         if form.is_valid():
-            # commit=False позволяет дописать автора перед сохранением в БД
             voting = form.save(commit=False)
             voting.owner = request.user
             voting.save()
-            return redirect('index') # redirect — редирект после успешного действия
+            return redirect('index')
     else:
         form = VotingForm()
     
@@ -115,10 +124,10 @@ def voting_create(request):
         'btn_text': 'Создать голосование' 
     })
 
+
 @login_required
 def voting_update(request, pk):
     voting = get_object_or_404(Voting, pk=pk)
-    # Проверка прав: только владелец или персонал может редактировать
     if voting.owner != request.user and not request.user.is_staff:
         return redirect('index')
 
@@ -131,6 +140,7 @@ def voting_update(request, pk):
         form = VotingForm(instance=voting)
     return render(request, 'voting/voting_form.html', {'form': form, 'title': 'Редактировать'})
 
+
 @login_required
 def voting_delete(request, pk):
     voting = get_object_or_404(Voting, pk=pk)
@@ -142,23 +152,19 @@ def voting_delete(request, pk):
         return redirect('index')
     return render(request, 'voting/voting_confirm_delete.html', {'voting': voting})
 
-# ------------------ 4. ЛОГИКА ГОЛОСОВАНИЯ (Задание 6) ------------------
 
 @login_required
 def vote(request, participant_id):
     participant = get_object_or_404(Participant, pk=participant_id)
     nomination = participant.nomination
 
-    # ЗАДАНИЕ 6: exists() — самый быстрый способ проверить наличие записи в БД
     already_voted = Vote.objects.filter(
         user=request.user, 
         participant__nomination=nomination
     ).exists()
 
     if not already_voted:
-        # Создаем запись о голосе
         Vote.objects.create(user=request.user, participant=participant)
-        # Связываем пользователя с голосованием (промежуточная таблица)
         VotingParticipation.objects.get_or_create(
             user=request.user, 
             voting=nomination.voting
@@ -166,35 +172,56 @@ def vote(request, participant_id):
 
     return redirect('voting_detail', voting_id=nomination.voting.id)
 
+
 @login_required
 def unvote(request, participant_id):
     participant = get_object_or_404(Participant, pk=participant_id)
-    # ЗАДАНИЕ 6: Массовое удаление через delete() на QuerySet
     Vote.objects.filter(
         user=request.user, 
         participant__nomination=participant.nomination
     ).delete()
     return redirect('voting_detail', voting_id=participant.nomination.voting.id)
 
-# ------------------ 5. МАССОВЫЕ ОПЕРАЦИИ (Задание 6) ------------------
 
 @login_required
 def archive_old_votings(request):
-    """Пример использования update() для массового изменения записей"""
     if request.user.is_staff:
         Voting.objects.filter(end_date__lt=now()).update(voting_type='private')
         
     return redirect('index')
 
-# ------------------ 6. АККАУНТЫ (Регистрация) ------------------
 
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user) # Автоматический вход после регистрации
+            login(request, user)
             return redirect('index')
     else:
         form = UserCreationForm()
     return render(request, 'voting/register.html', {'form': form})
+
+
+@login_required
+def profile_votings(request):
+    user_votings = Voting.objects.filter(owner=request.user).order_by('-created_at')
+    current_time = now()
+    
+    draft_votings = user_votings.filter(voting_type='private')
+    
+    active_votings = user_votings.filter(
+        Q(voting_type='public') | Q(voting_type='invite_only'),
+        end_date__gte=current_time
+    )
+    
+    archive_votings = user_votings.filter(
+        Q(voting_type='public') | Q(voting_type='invite_only'),
+        end_date__lt=current_time
+    )
+    
+    return render(request, 'voting/profile.html', {
+        'draft_votings': draft_votings,
+        'active_votings': active_votings,
+        'archive_votings': archive_votings,
+    })

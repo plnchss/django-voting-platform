@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Онлайн-голосования{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'voting/css/main.css' %}">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<header>
+    <h1><a href="{% url 'main' %}">Онлайн-голосования</a></h1>
+    <div class="auth-buttons">
+       
+        {% if request.resolver_match.url_name != 'main' %}
+            <a href="{% url 'main' %}" class="nav-btn nav-secondary">Главная</a>
+        {% endif %}
+
+        {% if request.resolver_match.url_name != 'index' %}
+            <a href="{% url 'index' %}" class="nav-btn nav-secondary">Все голосования</a>
+        {% endif %}
+        
+        {% if user.is_authenticated %}
+            <a href="{% url 'profile_votings' %}" class="nav-btn nav-secondary">Личный кабинет</a>
+            <a href="{% url 'voting_create' %}" class="nav-btn nav-action">+ Создать </a>
+            
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="control-btn btn-logout">Выйти</button>
+            </form>
+            
+         
+        {% else %}
+            <a href="{% url 'login' %}" class="simple-link">Войти</a>
+            <a href="{% url 'register' %}" class="nav-btn nav-action">Регистрация</a>
+        {% endif %} 
+
+        <div class="controls-panel">
+            <button class="control-btn" onclick="toggleTheme()">Тема</button>
+            <button class="control-btn" onclick="toggleAccessibility()">👁 Версия для слабовидящих</button>  
+            
+            {% if user.is_staff %}
+                <a href="{% url 'admin:index' %}" class="simple-link admin-link">Админка</a>
+            {% endif %}
+        </div>
+        
+    </div>
+</header>
+
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<script>
+    function toggleTheme() {
+        const isDark = document.body.classList.toggle('dark-theme');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    function toggleAccessibility() {
+        const isAccessible = document.body.classList.toggle('accessible-mode');
+        localStorage.setItem('accessibility', isAccessible ? 'enabled' : 'disabled');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+        if (localStorage.getItem('accessibility') === 'enabled') {
+            document.body.classList.add('accessible-mode');
+        }
+    });
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
