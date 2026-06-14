@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'voting/base.html' %}
 {% load static %}
 
 {% block title %}Главная — Панель управления{% endblock %}
@@ -25,54 +25,89 @@
     </div>
 
     <div class="widgets-container">
-        <div class="widget" id="vue-popular-widget">
+        
+        <div class="widget">
             <h3>🔥 Популярные голосования</h3>
             <div class="widget-list">
-                <div v-if="loading" class="empty-text">Загрузка данных из API...</div>
-                <div v-else-if="votings.length === 0" class="empty-text">Активные голосования отсутствуют.</div>
-                <a v-else v-for="v in votings" :key="v.id" :href="'/voting/' + v.id + '/'" class="widget-item">
-                    <div class="item-info">
-                        <div class="item-title">[[ v.title ]]</div>
-                        <div class="item-meta">Тип доступа: [[ v.voting_type ]]</div>
-                    </div>
-                    <span class="badge">Голосов: [[ v.id * 3 ]]</span>
-                </a>
+                {% for v in popular_votings %}
+                    <a href="{% url 'voting_detail' v.id %}" class="widget-item">
+                        <div class="item-info">
+                            <div class="item-title">{{ v.title }}</div>
+                            <div class="item-meta">Тип: {{ v.get_voting_type_display }}</div>
+                        </div>
+                        <span class="badge badge-accent">Голосов: {{ v.total_votes }}</span>
+                    </a>
+                {% empty %}
+                    <p class="empty-text">Активных голосований сейчас нет.</p>
+                {% endfor %}
             </div>
         </div>
 
         <div class="widget">
-            <h3>⏳ Горящие дедлайны</h3>
+            <h3>🏆 Топ кандидатов</h3>
             <div class="widget-list">
-                {% for v in urgent_votings %}
-                    <a href="{% url 'voting_detail' v.id %}" class="widget-item">
+                {% for participant in top_participants %}
+                    <a href="{% url 'voting_detail' participant.nomination.voting.id %}" class="widget-item">
                         <div class="item-info">
-                            <div class="item-title">{{ v.title }}</div>
-                            <div class="item-meta">Завершается: {{ v.end_date|date:"d.m.Y H:i" }}</div>
+                           <div class="item-title">
+                                {% if participant.name and participant.name.strip %}
+                                     {{ participant.name }}
+                                {% else %}
+                                     Кандидат #{{ participant.id }}
+                                 {% endif %}
+                            </div>
+                            <div class="item-meta">{{ participant.nomination.voting.title|truncatechars:25 }}</div>
                         </div>
-                        <span class="badge urgent">Срочно</span>
+                        <span class="badge">Голосов: {{ participant.votes_count }}</span>
                     </a>
                 {% empty %}
-                    <p class="empty-text">Горящих дедлайнов нет.</p>
+                    <p class="empty-text">Кандидатов пока нет.</p>
                 {% endfor %}
             </div>
         </div>
-    </div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-    const { createApp } = Vue;
-    createApp({
-        delimiters: ['[[', ']]'],
-        data() { return { votings: [], loading: true } },
-        mounted() {
-            fetch('/api/votings/')
-                .then(response => response.json())
-                .then(data => {
-                    this.votings = data.slice(0, 3);
-                    this.loading = false;
-                });
+        <div class="widget">
+            <h3>⚡ Последняя активность</h3>
+            <div class="widget-list">
+                {% for vote in recent_votes %}
+                    <div class="widget-item" style="cursor: default;">
+                        <div class="item-info">
+                            <div class="item-title">Новый голос от {{ vote.user.username }}</div>
+                            <div class="item-meta">Голосование: "{{ vote.participant.nomination.voting.title|truncatechars:20 }}"</div>
+                        </div>
+                        <span class="badge"> {{ vote.voted_at|timesince }} назад </span>
+                    </div>
+                {% empty %}
+                    <p class="empty-text">Голосов еще не было.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="widget">
+            <h3>🐱 Случайный котик</h3>
+            <div class="widget-list" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px;">
+                <img id="cat-image" src="https://api.thecatapi.com/v1/images/search?format=src&type=jpg" 
+                     alt="Случайный котик" 
+                     style="max-width: 100%; max-height: 220px; object-fit: cover; border-radius: 12px; cursor: pointer; transition: opacity 0.2s;"
+                     onclick="refreshCat()">
+                <p style="font-size: 12px; color: #888; text-align: center; margin-top: 10px;">Нажми на фото, чтобы обновить!</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function refreshCat() {
+            const img = document.getElementById('cat-image');
+            img.style.opacity = '0.5'; 
+            
+            const newUrl = "https://api.thecatapi.com/v1/images/search?format=src&type=jpg&t=" + new Date().getTime();
+            
+            img.onload = function() {
+                img.style.opacity = '1';
+            };
+            
+            img.src = newUrl;
         }
-    }).mount('#vue-popular-widget');
-</script>
+    </script>
 {% endblock %}

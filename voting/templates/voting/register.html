@@ -2,28 +2,93 @@
 
 {% block title %}Регистрация{% endblock %}
 
+{% block extra_css %}
+<style>
+    .auth-container { max-width: 450px; margin: 40px auto; background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; transition: all 0.3s ease; }
+    .auth-title { text-align: center; margin-bottom: 30px; font-size: 24px; color: #333; font-weight: 700; transition: color 0.3s ease; }
+    .auth-group { margin-bottom: 20px; }
+    .auth-label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; transition: color 0.3s ease; }
+    .auth-input { width: 100%; box-sizing: border-box; padding: 14px 16px; border: 2px solid #eee; border-radius: 12px; font-size: 15px; font-family: inherit; transition: all 0.2s ease; background: #fafafa; color: #333; }
+    .auth-input:focus { border-color: var(--accent-color, #a855f7); background: #fff; outline: none; box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1); }
+    .auth-btn { width: 100%; padding: 14px; background: var(--accent-color, #a855f7); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; margin-top: 15px; }
+    .auth-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2); }
+    .auth-footer { text-align: center; margin-top: 25px; font-size: 14px; color: #888; }
+    .auth-footer a { color: var(--accent-color, #a855f7); text-decoration: none; font-weight: 600; transition: opacity 0.2s; }
+    .auth-errors { background: #fee2e2; color: #dc2626; padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; text-align: center; list-style: none; }
+    .field-error { color: #dc2626; font-size: 13px; margin-top: 6px; display: block; font-weight: 500; }
+    .field-help { font-size: 12px; color: #999; margin-top: 8px; display: block; line-height: 1.5; background: #f9f9f9; padding: 10px; border-radius: 8px; transition: all 0.3s ease;}
+
+    /* ТЕМНАЯ ТЕМА */
+    body.dark-theme .auth-container { background: #22222a; border-color: #33333e; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    body.dark-theme .auth-title { color: #fff; }
+    body.dark-theme .auth-label { color: #aaa; }
+    body.dark-theme .auth-input { background: #1a1a24; border-color: #33333e; color: #fff; }
+    body.dark-theme .auth-input:focus { border-color: var(--accent-color, #a855f7); background: #22222a; }
+    body.dark-theme .auth-footer { color: #aaa; }
+    body.dark-theme .field-help { background: #1a1a24; color: #888; border: 1px solid #33333e; }
+
+    /* ВЕРСИЯ ДЛЯ СЛАБОВИДЯЩИХ */
+    body.accessible-mode .auth-container { background: #fff; border: 3px solid #000; border-radius: 0; box-shadow: none; }
+    body.accessible-mode .auth-title { color: #000; font-size: 28px; font-weight: 900; }
+    body.accessible-mode .auth-label { color: #000; font-size: 16px; font-weight: 800; }
+    body.accessible-mode .auth-input { background: #fff; border: 3px solid #000; border-radius: 0; color: #000; font-size: 18px; font-weight: 600; }
+    body.accessible-mode .auth-input:focus { outline: 3px solid #000; outline-offset: 2px; box-shadow: none; }
+    body.accessible-mode .auth-btn { background: #000; color: #fff; border: 3px solid #000; border-radius: 0; font-size: 18px; font-weight: 900; text-transform: uppercase; }
+    body.accessible-mode .auth-btn:hover { background: #fff; color: #000; }
+    body.accessible-mode .auth-footer { color: #000; font-size: 16px; font-weight: 600; }
+    body.accessible-mode .auth-footer a { color: #000; text-decoration: underline; text-decoration-thickness: 2px; }
+    body.accessible-mode .auth-errors { background: #fff; color: #000; border: 3px solid #000; font-weight: 700; border-radius: 0; }
+    body.accessible-mode .field-help { background: #fff; color: #000; border: 2px dashed #000; border-radius: 0; font-size: 14px; font-weight: 600; }
+    body.accessible-mode .field-error { color: #000; font-weight: 900; text-decoration: underline; font-size: 15px; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="form-page-container">
+<div class="auth-container">
+    <h2 class="auth-title">Создать аккаунт ✨</h2>
     
-    <a href="{% url 'index' %}" class="back-link">← На главную</a>
-
-    <div class="form-card-container">
-        <h2 class="form-title">Регистрация</h2>
+    <form method="post" action="{% url 'register' %}">
+        {% csrf_token %}
         
-        <form method="post" class="django-styled-form">
-            {% csrf_token %}
-            
-            {# Django сам сгенерирует p, label, input и мелкий текст подсказок helptext #}
-            {{ form.as_p }}
-            
-            <button type="submit" class="submit-form-btn">Зарегистрироваться</button>
-        </form>
+        {% if form.non_field_errors %}
+            <ul class="auth-errors">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-        <div class="form-footer-link">
-            <span>Уже есть аккаунт?</span> 
-            <a href="{% url 'login' %}" class="simple-link-accent">Войти</a>
-        </div>
+        {% for field in form %}
+            <div class="auth-group">
+                <label class="auth-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                
+                {{ field }}
+                
+                {% if field.errors %}
+                    <span class="field-error">{{ field.errors.0 }}</span>
+                {% endif %}
+                
+                {% if field.help_text %}
+                    <span class="field-help">{{ field.help_text|safe }}</span>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="auth-btn">Зарегистрироваться</button>
+    </form>
+
+    <div class="auth-footer">
+        <span>Уже есть аккаунт?</span> 
+        <a href="{% url 'login' %}">Войти</a>
     </div>
-
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const inputs = document.querySelectorAll('.auth-container input');
+        inputs.forEach(input => {
+            input.classList.add('auth-input');
+        });
+    });
+</script>
 {% endblock %}

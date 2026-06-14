@@ -13,12 +13,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='historicalvoting',
             name='rules_file',
-            field=models.TextField(blank=True, max_length=100, null=True, verbose_name='Файл с правилами'),
+            field=models.TextField(blank=True, max_length=100, null=True, verbose_name='Приложение к голосованию'),
         ),
         migrations.AddField(
             model_name='voting',
             name='rules_file',
-            field=models.FileField(blank=True, null=True, upload_to='rules/%Y/%m/', verbose_name='Файл с правилами'),
+            field=models.FileField(blank=True, null=True, upload_to='rules/%Y/%m/', verbose_name='Приложение к голосованию'),
         ),
         migrations.AlterField(
             model_name='participant',

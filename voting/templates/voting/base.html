@@ -10,71 +10,89 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     {% block extra_css %}{% endblock %}
 </head>
-<body>
 
-<header>
-    <h1><a href="{% url 'main' %}">Онлайн-голосования</a></h1>
-    <div class="auth-buttons">
-       
-        {% if request.resolver_match.url_name != 'main' %}
-            <a href="{% url 'main' %}" class="nav-btn nav-secondary">Главная</a>
-        {% endif %}
+<body class="no-transition {% if request.COOKIES.theme == 'dark' %}dark-theme{% endif %} {% if request.COOKIES.accessibility == 'enabled' %}accessible-mode{% endif %}">
 
-        {% if request.resolver_match.url_name != 'index' %}
-            <a href="{% url 'index' %}" class="nav-btn nav-secondary">Все голосования</a>
-        {% endif %}
-        
-        {% if user.is_authenticated %}
-            <a href="{% url 'profile_votings' %}" class="nav-btn nav-secondary">Личный кабинет</a>
-            <a href="{% url 'voting_create' %}" class="nav-btn nav-action">+ Создать </a>
-            
-            <form action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="control-btn btn-logout">Выйти</button>
-            </form>
-            
-         
-        {% else %}
-            <a href="{% url 'login' %}" class="simple-link">Войти</a>
-            <a href="{% url 'register' %}" class="nav-btn nav-action">Регистрация</a>
-        {% endif %} 
+<header class="main-header">
+    <div class="header-container">
+        <div class="header-logo">
+            <a href="{% url 'main' %}">Онлайн-голосования</a>
+        </div>
 
-        <div class="controls-panel">
-            <button class="control-btn" onclick="toggleTheme()">Тема</button>
-            <button class="control-btn" onclick="toggleAccessibility()">👁 Версия для слабовидящих</button>  
-            
-            {% if user.is_staff %}
-                <a href="{% url 'admin:index' %}" class="simple-link admin-link">Админка</a>
+        <nav class="header-nav">
+            {% if request.resolver_match.url_name != 'main' %}
+                <a href="{% url 'main' %}" class="nav-link">Главная</a>
+            {% endif %}
+            {% if request.resolver_match.url_name != 'index' %}
+                <a href="{% url 'index' %}" class="nav-link">Все голосования</a>
+            {% endif %}
+        </nav>
+
+        <div class="header-actions">
+            {% if user.is_authenticated %}
+                <a href="{% url 'voting_create' %}" class="nav-btn-accent">+ Создать</a>
+                <div class="user-dropdown">
+                    <button class="dropdown-trigger" onclick="toggleDropdown(event)">
+                        <span class="user-avatar-placeholder">👤</span>
+                        <span class="user-name">Меню</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="dropdown-menu" id="userMenu">
+                        <a href="{% url 'profile_votings' %}" class="dropdown-item">Личный кабинет</a>
+                        {% if user.is_staff %}
+                            <a href="{% url 'admin:index' %}" class="dropdown-item admin-item">Админка</a>
+                        {% endif %}
+                        <hr class="dropdown-divider">
+                        <button type="button" class="dropdown-item text-btn" onclick="toggleTheme()">🌓 Сменить тему</button>
+                        <button type="button" class="dropdown-item text-btn" onclick="toggleAccessibility()">👁 Слабовидящим</button>
+                        <hr class="dropdown-divider">
+                        <form action="{% url 'logout' %}" method="post" class="logout-form">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item logout-item">Выйти</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <div class="anon-actions">
+                    <button type="button" class="control-btn-icon" onclick="toggleTheme()" title="Сменить тему">🌓</button>
+                    <button type="button" class="control-btn-icon" onclick="toggleAccessibility()" title="Версия для слабовидящих">👁</button>
+                    <a href="{% url 'login' %}" class="simple-link">Войти</a>
+                    <a href="{% url 'register' %}" class="nav-btn-accent">Регистрация</a>
+                </div>
             {% endif %}
         </div>
-        
     </div>
 </header>
 
 <main class="main-content">
+    
+{% if messages %}
+        <div class="django-messages" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; gap: 10px;">
+            {% for message in messages %}
+                <div class="alert {{ message.tags }}" style="
+                    padding: 12px 24px; 
+                    border-radius: 50px; 
+                    font-weight: 600;
+                    font-size: 14px;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                    {% if message.tags == 'success' %}
+                        background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;
+                    {% elif message.tags == 'error' %}
+                        background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2;
+                    {% else %}
+                        background-color: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb;
+                    {% endif %}
+                ">
+                    {% if message.tags == 'success' %}✅ {% endif %}{{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% block content %}{% endblock %}
 </main>
 
-<script>
-    function toggleTheme() {
-        const isDark = document.body.classList.toggle('dark-theme');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    }
-
-    function toggleAccessibility() {
-        const isAccessible = document.body.classList.toggle('accessible-mode');
-        localStorage.setItem('accessibility', isAccessible ? 'enabled' : 'disabled');
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-        }
-        if (localStorage.getItem('accessibility') === 'enabled') {
-            document.body.classList.add('accessible-mode');
-        }
-    });
-</script>
+<script src="{% static 'voting/js/main.js' %}"></script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

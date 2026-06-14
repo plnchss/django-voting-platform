@@ -1,22 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Удаление</title>
-    <style>
-        body { background: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding-top: 100px; }
-        .confirm-box { display: inline-block; background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; border: 1px solid #ff4d4d; }
-        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <div class="confirm-box">
-        <h2>Удалить "{{ voting.title }}"?</h2>
-        <p>Это действие нельзя отменить.</p>
-        <form method="post">
+{% extends 'voting/base.html' %}
+
+{% block title %}Удаление: {{ voting.title }}{% endblock %}
+
+{% block content %}
+<div class="detail-container" style="max-width: 500px; margin: 60px auto; text-align: center;">
+    <div class="voting-main-card" style="border: 1px solid #e53e3e; box-shadow: 0 4px 20px rgba(229, 62, 62, 0.05);">
+        <h2 class="voting-title" style="color: #e53e3e; margin-bottom: 12px;">Удалить «{{ voting.title }}»?</h2>
+        <p class="voting-desc" style="margin-bottom: 25px;">Это действие абсолютно необратимо. Все связанные номинации, участники и голоса будут безвозвратно стёрты.</p>
+        
+        <form method="post" style="display: flex; justify-content: center; align-items: center; gap: 20px;">
             {% csrf_token %}
-            <button type="submit" class="btn-delete">Да, удалить</button>
-            <a href="{% url 'voting_detail' voting.id %}" style="color: white; margin-left: 20px;">Отмена</a>
+            <button type="submit" class="submit-vote-btn" style="background: #e53e3e; margin: 0;">Да, удалить</button>
+            <a href="{% url 'voting_detail' voting.id %}" class="back-link" style="margin: 0; padding: 10px 15px;">Отмена</a>
         </form>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

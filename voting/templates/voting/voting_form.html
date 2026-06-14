@@ -2,23 +2,73 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Базовые стили для формы Django */
+    .django-styled-form p {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        color: var(--text-main);
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .django-styled-form input[type="text"],
+    .django-styled-form input[type="datetime-local"],
+    .django-styled-form textarea,
+    .django-styled-form select {
+        width: 100%;
+        padding: 12px 16px;
+        background: var(--bg-card);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 14px;
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .django-styled-form input:focus,
+    .django-styled-form textarea:focus,
+    .django-styled-form select:focus {
+        border-color: var(--accent-color);
+    }
+
+    /* Фикс белого фона у выпадающих списков в темной теме */
+    .django-styled-form select option {
+        background-color: var(--bg-card);
+        color: var(--text-main);
+    }
+
+    /* Кастомизация поля выбора файла */
+    .django-styled-form input[type="file"] {
+        color: var(--text-muted);
+        font-family: 'Montserrat', sans-serif;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="form-page-container">
+<div class="detail-container" style="max-width: 700px; margin: 40px auto; padding: 0 20px;">
     
     <a href="{% url 'index' %}" class="back-link">← Назад на главную</a>
 
-    <div class="form-card-container">
-        <h2 class="form-title">{{ title }}</h2>
+    <div class="voting-main-card" style="background: var(--bg-card); padding: 30px; border-radius: 16px; border: 1px solid var(--border-color); margin-top: 20px;">
+        <h2 class="profile-title" style="margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; color: var(--text-main);">{{ title }}</h2>
         
         <form method="post" enctype="multipart/form-data" class="django-styled-form">
             {% csrf_token %}
             
-            {# Рендерим дефолтную Django-форму, классы для полей подтянутся из CSS #}
-            {{ form.as_p }}
+            <div class="form-fields-wrapper">
+                {{ form.as_p }}
+            </div>
             
-            <button type="submit" class="submit-form-btn">{{ btn_text }}</button>
+            <button type="submit" class="submit-vote-btn" style="width: 100%; margin-top: 25px;">{{ btn_text }}</button>
         </form>
     </div>
-
 </div>
 {% endblock %}

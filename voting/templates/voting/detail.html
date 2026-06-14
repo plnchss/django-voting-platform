@@ -1,18 +1,19 @@
 {% extends 'voting/base.html' %}
+{% load dict_extras %}
 
-{% block title %}{{ voting.title }}{% endblock %}
+{% block title %}Голосование: {{ voting.title }}{% endblock %}
 
 {% block content %}
 <div class="detail-container">
     
-    <a href="{% url 'index' %}" class="back-link">← К списку голосованиий</a>
+    <a href="{% url 'index' %}" class="back-link">← К списку голосований</a>
 
     <div class="voting-main-card">
         <div class="voting-meta">
             {% if voting.is_active %}
                 <span class="status-badge active">Активно</span>
             {% else %}
-                <span class="status-badge">Завершено</span>
+                <span class="status-badge archive">Завершено</span>
             {% endif %}
         </div>
         <h2 class="voting-title">{{ voting.title }}</h2>
@@ -24,8 +25,8 @@
     {% if user == voting.owner or user.is_staff %}
     <div class="management-bar">
         <span class="management-title">Управление:</span>
-        <a href="#" class="mgmt-link">Редактировать</a>
-        <a href="#" class="mgmt-link delete">Удалить</a>
+        <a href="{% url 'voting_update' voting.id %}" class="mgmt-link">Редактировать</a>
+        <a href="{% url 'voting_delete' voting.id %}" class="mgmt-link delete">Удалить</a>
     </div>
     {% endif %}
 
@@ -35,7 +36,11 @@
             <div class="info-item">
                 <span class="info-label">Дней до завершения:</span>
                 <span class="info-value">
-                    {{ voting.days_left }}
+                    {% if voting.days_left is not None %}
+                        {{ voting.days_left }}
+                    {% else %}
+                        Не указано
+                    {% endif %}
                 </span>
             </div>
             <div class="info-item">
@@ -45,56 +50,94 @@
         </div>
     </div>
 
-    <form method="post" action="#" class="nominations-section">
-        {% csrf_token %}
+    <div class="nominations-section">
         <h3 class="nominations-title">Номинации и участники</h3>
         
-        <div class="nominations-list" style="display: flex; flex-direction: column; gap: 30px;">
+        <div class="nominations-list">
             {% for nomination in voting.nominations.all %}
-                <div class="nomination-block" style="border-bottom: 1px dashed var(--border-color); padding-bottom: 20px;">
-                    <h4 style="margin: 0 0 5px 0; font-size: 18px; color: var(--text-main);">{{ nomination.title }}</h4>
+                <div class="nomination-block">
+                    <h4 class="nomination-block-title">{{ nomination.title }}</h4>
                     {% if nomination.description %}
-                        <p class="voting-desc" style="margin-bottom: 15px; font-size: 13px;">{{ nomination.description }}</p>
+                        <p class="nomination-block-desc">{{ nomination.description }}</p>
                     {% endif %}
 
-                    <div class="participants-list" style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
-                        {% for participant in nomination.participants.all %}
-                            <label class="nomination-label" style="display: flex; align-items: center; gap: 15px;">
-                                <input type="radio" name="nomination_{{ nomination.id }}" value="{{ participant.id }}" required 
-                                       {% if not voting.is_active %}disabled{% endif %}>
-                                
-                                {% if participant.avatar %}
-                                    <img src="{{ participant.avatar.url }}" alt="{{ participant.name }}" 
-                                         style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color);">
-                                {% else %}
-                                    <div style="width: 45px; height: 45px; border-radius: 50%; background: var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-muted);">No px</div>
-                                {% endif %}
+                    {% with voted_participant_id=user_votes|get_item:nomination.id %}
+                    
+                    {% if voted_participant_id %}
+                        <div class="voted-status-bar" style="margin-bottom: 15px; padding: 10px; background: #e8f5e9; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #2e7d32; font-weight: bold;">✅ Вы уже проголосовали</span>
+                            {% if voting.is_active %}
+                                <a href="{% url 'unvote' voted_participant_id %}" class="mgmt-link delete" style="text-decoration: none;">Отменить голос</a>
+                            {% endif %}
+                        </div>
 
-                                <div class="participant-info">
-                                    <span class="nomination-text" style="display: block; font-weight: 600;">{{ participant.name }}</span>
-                                    {% if participant.description %}
-                                        <span class="info-label" style="font-size: 12px; display: block; margin-top: 2px;">{{ participant.description }}</span>
+                        <div class="participants-list">
+                            {% for participant in nomination.participants.all %}
+                                <label class="nomination-label" style="{% if participant.id != voted_participant_id %}opacity: 0.5;{% else %}border-color: var(--accent-color);{% endif %}">
+                                    <input type="radio" disabled {% if participant.id == voted_participant_id %}checked{% endif %}>
+                                    
+                                    {% if participant.avatar %}
+                                        <img src="{{ participant.avatar.url }}" alt="{{ participant.name }}" class="participant-avatar">
+                                    {% else %}
+                                        <div class="participant-avatar-placeholder">No px</div>
                                     {% endif %}
-                                </div>
-                            </label>
-                        {% empty %}
-                            <p class="empty-text" style="font-style: italic; font-size: 13px; color: var(--text-muted); margin-left: 10px;">В этой номинации пока нет участников.</p>
-                        {% endfor %}
-                    </div>
+
+                                    <div class="participant-info">
+                                        <span class="nomination-text">{{ participant.name }}</span>
+                                        {% if participant.description %}
+                                            <span class="info-label participant-subdesc">{{ participant.description }}</span>
+                                        {% endif %}
+                                    </div>
+                                </label>
+                            {% endfor %}
+                        </div>
+
+                    {% else %}
+                        <form method="post" action="{% url 'voting_detail' voting.id %}">
+                            {% csrf_token %}
+                            <div class="participants-list">
+                                {% for participant in nomination.participants.all %}
+                                    <label class="nomination-label">
+                                        <input type="radio" name="nomination_{{ nomination.id }}" value="{{ participant.id }}" required 
+                                               {% if not voting.is_active %}disabled{% endif %}>
+                                        
+                                        {% if participant.avatar %}
+                                            <img src="{{ participant.avatar.url }}" alt="{{ participant.name }}" class="participant-avatar">
+                                        {% else %}
+                                            <div class="participant-avatar-placeholder">No px</div>
+                                        {% endif %}
+
+                                        <div class="participant-info">
+                                            <span class="nomination-text">{{ participant.name }}</span>
+                                            {% if participant.description %}
+                                                <span class="info-label participant-subdesc">{{ participant.description }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </label>
+                                {% empty %}
+                                    <p class="empty-text">В этой номинации пока нет участников.</p>
+                                {% endfor %}
+                            </div>
+
+                            {% if voting.is_active %}
+                                {% if nomination.participants.all %}
+                                    <button type="submit" class="submit-vote-btn" style="margin-top: 15px;">Проголосовать в этой номинации</button>
+                                {% endif %}
+                            {% else %}
+                                <button type="button" class="submit-vote-btn" style="margin-top: 15px;" disabled>Голосование завершено</button>
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                    
+                    {% endwith %}
                 </div>
             {% empty %}
                 <div class="nomination-label nomination-empty">
-                    <span class="voting-desc" style="font-style: italic;">В данном голосовании еще нет номинаций</span>
+                    <span class="voting-desc">В данном голосовании еще нет номинаций</span>
                 </div>
             {% endfor %}
         </div>
-
-        {% if voting.is_active %}
-            <button type="submit" class="submit-vote-btn">Отдать голос</button>
-        {% else %}
-            <button type="button" class="submit-vote-btn" disabled>Голосование завершено</button>
-        {% endif %}
-    </form>
+    </div>
 
 </div>
 {% endblock %}

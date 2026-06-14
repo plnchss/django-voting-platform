@@ -1,8 +1,8 @@
 from django.conf import settings
-from django.db import models
 from django.core.exceptions import ValidationError
-from django.utils.timezone import now
+from django.db import models
 from django.urls import reverse
+from django.utils.timezone import now
 from simple_history.models import HistoricalRecords
 
 
@@ -26,10 +26,11 @@ class Voting(models.Model):
     start_date = models.DateTimeField("Дата начала")
     end_date = models.DateTimeField("Дата окончания")
     voting_type = models.CharField("Тип", max_length=15, choices=VOTING_TYPES, default='public')
-    rules_file = models.FileField("Файл с правилами", upload_to='rules/%Y/%m/', blank=True, null=True)
+    rules_file = models.FileField("Приложение к голосованию", upload_to='rules/%Y/%m/', blank=True, null=True)
     external_link = models.URLField("Внешняя ссылка", max_length=200, blank=True, null=True)
     created_at = models.DateTimeField("Создано", auto_now_add=True)
     updated_at = models.DateTimeField("Обновлено", auto_now=True)
+    
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.SET_NULL, 
@@ -66,6 +67,13 @@ class Voting(models.Model):
 
     def is_finished(self):
         return now() > self.end_date
+
+    @property
+    def days_left(self):
+        if self.end_date and self.end_date > now():
+            delta = self.end_date - now()
+            return delta.days
+        return 0
 
     def get_absolute_url(self):
         return reverse('voting_detail', args=[str(self.id)])
@@ -108,7 +116,7 @@ class Nomination(models.Model):
 
     class Meta:
         unique_together = ("voting", "title")
-        verbose_name = "Nomination"
+        verbose_name = "Номинация"
         verbose_name_plural = "Номинации"
 
     def __str__(self):
@@ -144,10 +152,6 @@ class Vote(models.Model):
 
     def __str__(self):
         return f"Голос от {self.user.username} за {self.participant.name}"
-    
-    # ==========================================
-# МОДЕЛИ ДЛЯ ВИДЖЕТОВ (ГЛАВНАЯ СТРАНИЦА)
-# ==========================================
 
 class WidgetNews(models.Model):
     """Виджет 1: Важные новости и объявления на главной"""
